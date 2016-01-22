@@ -16,12 +16,11 @@ ENV AIRFLOW_VERSION 1.6.2
 ENV AIRFLOW_HOME /usr/local/airflow
 ENV PYTHONLIBPATH /usr/lib/python2.7/dist-packages
 
-# Add airflow user
-RUN useradd -ms /bin/bash -d ${AIRFLOW_HOME} airflow
-
 RUN apt-get update -yqq \
     && apt-get install -yqq --no-install-recommends \
-    ca-certificates \
+    vim \
+    procps \ 
+    lsof \
     netcat \
     curl \
     python-pip \
@@ -32,10 +31,11 @@ RUN apt-get update -yqq \
     libssl-dev \
     libffi-dev \
     build-essential \
+    openssh-server  \
+    && pip install --install-option="--install-purelib=$PYTHONLIBPATH" pexpect \
     && pip install --install-option="--install-purelib=$PYTHONLIBPATH" cryptography \
-    && pip install --install-option="--install-purelib=$PYTHONLIBPATH" pyOpenSSL \
-    && pip install --install-option="--install-purelib=$PYTHONLIBPATH" ndg-httpsclient \
-    && pip install --install-option="--install-purelib=$PYTHONLIBPATH" pyasn1 \
+    && pip install --install-option="--install-purelib=$PYTHONLIBPATH" requests[security] \
+    && pip install --install-option="--install-purelib=$PYTHONLIBPATH" urllib3[secure] \
     && pip install --install-option="--install-purelib=$PYTHONLIBPATH" airflow==${AIRFLOW_VERSION} \
     && pip install --install-option="--install-purelib=$PYTHONLIBPATH" airflow[celery]==${AIRFLOW_VERSION} \
     && pip install --install-option="--install-purelib=$PYTHONLIBPATH" airflow[mysql]==${AIRFLOW_VERSION} \
@@ -47,6 +47,10 @@ RUN apt-get update -yqq \
     /usr/share/man \
     /usr/share/doc \
     /usr/share/doc-base
+
+# Add airflow user
+RUN useradd -ms /bin/bash -d ${AIRFLOW_HOME} airflow
+RUN mkdir -p /data/tmp && chmod a+rw /data/tmp
 
 ADD script/entrypoint.sh ${AIRFLOW_HOME}/entrypoint.sh
 ADD config/airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
