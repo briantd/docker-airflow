@@ -50,7 +50,7 @@ RUN apt-get update -yqq \
 
 # Add airflow user
 RUN useradd -ms /bin/bash -d ${AIRFLOW_HOME} airflow
-RUN mkdir -p /data/tmp && chmod a+rw /data/tmp
+RUN mkdir -p /data/tmp && chmod a+rwx /data/tmp
 
 ADD script/entrypoint.sh ${AIRFLOW_HOME}/entrypoint.sh
 ADD config/airflow.cfg ${AIRFLOW_HOME}/airflow.cfg
